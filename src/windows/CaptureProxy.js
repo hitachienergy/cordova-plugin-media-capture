@@ -43,7 +43,8 @@ function MediaCaptureProxy() {
         usingBackCamera = false;
 
     var CaptureNS = Windows.Media.Capture;
-    var PhotoOrientation = Windows.Storage.FileProperties.PhotoOrientation;
+	var PhotoOrientation = Windows.Graphics.Imaging.BitmapRotation;
+	
     var currentPhotoOrientation;
     var translateService = angular.element(document.body).injector().get('$translate');
     var captureVideoTimeout;
@@ -189,27 +190,27 @@ function MediaCaptureProxy() {
                 // portrait
             case 90:
                 rotation = Windows.Media.Capture.VideoRotation.clockwise90Degrees;
-                currentPhotoOrientation = PhotoOrientation.rotate270;
+                currentPhotoOrientation = PhotoOrientation.clockwise90Degrees;
                 break;
                 // landscape
             case 0:
                 rotation = Windows.Media.Capture.VideoRotation.none;
-                currentPhotoOrientation = PhotoOrientation.normal;
+                currentPhotoOrientation = PhotoOrientation.none;
                 break;
                 // portrait-flipped
             case 270:
                 rotation = Windows.Media.Capture.VideoRotation.clockwise270Degrees;
-                currentPhotoOrientation = PhotoOrientation.rotate90;
+                currentPhotoOrientation = PhotoOrientation.clockwise270Degrees;
                 break;
                 // landscape-flipped
             case 180:
                 rotation = Windows.Media.Capture.VideoRotation.clockwise180Degrees;
-                currentPhotoOrientation = PhotoOrientation.rotate180;
+                currentPhotoOrientation = PhotoOrientation.clockwise180Degrees;
                 break;
             default:
                 // Falling back to portrait default
                 rotation = Windows.Media.Capture.VideoRotation.clockwise90Degrees;
-                currentPhotoOrientation = PhotoOrientation.rotate90;
+                currentPhotoOrientation = PhotoOrientation.clockwise90Degrees;
         }
 
         capture.setPreviewRotation(rotation);
@@ -353,6 +354,7 @@ function MediaCaptureProxy() {
                         }
 
                         function reencodeAndSavePhotoAsync(inputStream, file, orientation) {
+
                             var Imaging = Windows.Graphics.Imaging;
                             var bitmapDecoder = null,
                                 bitmapEncoder = null,
@@ -366,10 +368,14 @@ function MediaCaptureProxy() {
                                     outputStream = outStream;
                                     return Imaging.BitmapEncoder.createForTranscodingAsync(outputStream, bitmapDecoder);
                                 }).then(function (encoder) {
-                                    bitmapEncoder = encoder;
-                                    var properties = new Imaging.BitmapPropertySet();
-                                    properties.insert("System.Photo.Orientation", new Imaging.BitmapTypedValue(orientation, Windows.Foundation.PropertyType.uint16));
-                                    return bitmapEncoder.bitmapProperties.setPropertiesAsync(properties)
+									bitmapEncoder = encoder;
+									if (orientation) {
+										bitmapEncoder.bitmapTransform.rotation = orientation;
+										var properties = new Imaging.BitmapPropertySet();
+										properties.insert("System.Photo.Orientation", new Imaging.BitmapTypedValue(orientation, Windows.Foundation.PropertyType.uint16));
+										return bitmapEncoder.bitmapProperties.setPropertiesAsync(properties)
+									}
+                                    
                                 }).then(function () {
                                     return bitmapEncoder.flushAsync();
                                 }).then(function () {
