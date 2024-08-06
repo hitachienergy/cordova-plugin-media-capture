@@ -79,4 +79,16 @@ Capture.prototype.captureVideo = function (successCallback, errorCallback, optio
     _capture('captureVideo', successCallback, errorCallback, options);
 };
 
+/**
+ * Request permissions for Camera and Microphone. 
+ * Only for iOS platform
+ * 
+ * @param {Function} successCB
+ * @param {Function} errorCB
+ * @param {CaptureVideoOptions} options
+ */
+Capture.prototype.requestPermissions = function (successCallback, errorCallback, options) {
+    _capture('requestPermissions', successCallback, errorCallback, options);
+};
+
 module.exports = new Capture();

@@ -82,6 +82,57 @@
     self.inUse = NO;
 }
 
+- (void)requestPermissions:(CDVInvokedUrlCommand*)command
+{
+    NSString* callbackId = command.callbackId;
+    bool statusNotDetermined = false;
+    switch ([[AVAudioSession sharedInstance] recordPermission]) {
+        case AVAudioSessionRecordPermissionGranted:
+
+            break;
+        case AVAudioSessionRecordPermissionDenied:
+
+            break;
+        case AVAudioSessionRecordPermissionUndetermined:
+            // This is the initial state before a user has made any choice
+            // You can use this spot to request permission here if you want
+            statusNotDetermined = true;
+            
+            [[AVAudioSession sharedInstance]requestRecordPermission:^(BOOL granted) {
+                // Check for granted
+                if(granted){
+                    
+                }else{
+                    
+                }
+            }];
+            break;
+        default:
+            break;
+    }
+    
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if(status == AVAuthorizationStatusNotDetermined){
+        NSLog(@"AVAuthorizationStatusNotDetermined");
+        NSString *mediaType = AVMediaTypeVideo;
+        // not determined?!
+      [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+        if(granted){
+          NSLog(@"Granted access to %@", mediaType);
+        } else {
+          NSLog(@"Not granted access to %@", mediaType);
+        }
+      }];
+        statusNotDetermined = true;
+    }
+    
+    if(statusNotDetermined){
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"AVAuthorizationStatusNotDetermined"];
+        [self.commandDelegate sendPluginResult:result callbackId:callbackId];
+        return;
+    }
+}
+
 - (void)captureAudio:(CDVInvokedUrlCommand*)command
 {
     NSString* callbackId = command.callbackId;
