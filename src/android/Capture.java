@@ -82,7 +82,7 @@ public class Capture extends CordovaPlugin {
     private static final String[] storagePermissions;
     static {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            storagePermissions = new String[]{ Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO };
+            storagePermissions = new String[]{ Manifest.permission.READ_MEDIA_AUDIO };
         } else {
             storagePermissions = new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO };
         }
